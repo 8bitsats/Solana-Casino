@@ -3,9 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Dices } from 'lucide-react';
 import SHA256 from 'crypto-js/sha256';
+import { useTreasury } from '../WalletProvider';
 
 const DiceRoll: React.FC = () => {
-  const { connected } = useWallet();
+  const { connected, publicKey } = useWallet();
+  const { payoutTokens } = useTreasury();
   const [betAmount, setBetAmount] = useState<string>('0.1');
   const [isRolling, setIsRolling] = useState(false);
   const [targetNumber, setTargetNumber] = useState<number>(50);
@@ -36,27 +38,44 @@ const DiceRoll: React.FC = () => {
     setIsRolling(true);
     setResult(null);
 
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
+    try {
+      const gameResult = generateResult();
+      const won = rollType === 'under' 
+        ? gameResult < targetNumber 
+        : gameResult > targetNumber;
 
-    const gameResult = generateResult();
-    const won = rollType === 'under' 
-      ? gameResult < targetNumber 
-      : gameResult > targetNumber;
+      // If player won, process payout
+      if (won && publicKey) {
+        const betAmountLamports = Math.floor(parseFloat(betAmount) * 1e9); // Convert to lamports
+        const payoutAmount = Math.floor(betAmountLamports * multiplier); // Multiply by win multiplier
+        
+        try {
+          const signature = await payoutTokens(publicKey, payoutAmount);
+          console.log('Payout successful:', signature);
+        } catch (error) {
+          console.error('Payout failed:', error);
+          setIsRolling(false);
+          return;
+        }
+      }
 
-    setGameHistory(prev => [{
-      id: Date.now(),
-      bet: betAmount,
-      target: targetNumber,
-      type: rollType,
-      result: gameResult,
-      won
-    }, ...prev.slice(0, 9)]);
+      setGameHistory(prev => [{
+        id: Date.now(),
+        bet: betAmount,
+        target: targetNumber,
+        type: rollType,
+        result: gameResult,
+        won
+      }, ...prev.slice(0, 9)]);
 
-    setTimeout(() => {
-      setResult(gameResult);
+      setTimeout(() => {
+        setResult(gameResult);
+        setIsRolling(false);
+      }, 2000);
+    } catch (error) {
+      console.error('Game error:', error);
       setIsRolling(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -69,15 +88,19 @@ const DiceRoll: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                  Bet Amount (SOL)
+                  Bet Amount (GRIN)
                 </label>
                 <input
+                  id="betAmount"
                   type="number"
                   value={betAmount}
                   onChange={(e) => setBetAmount(e.target.value)}
                   className="w-full px-4 py-2 rounded-lg bg-[var(--background)] border border-[var(--border)] focus:border-[var(--accent)] focus:outline-none"
                   step="0.1"
                   min="0.1"
+                  max="1000"
+                  placeholder="Enter bet amount"
+                  aria-label="Bet Amount in GRIN tokens"
                 />
               </div>
 
@@ -86,12 +109,14 @@ const DiceRoll: React.FC = () => {
                   Target Number (1-99)
                 </label>
                 <input
+                  id="targetNumber"
                   type="range"
                   min="2"
                   max="98"
                   value={targetNumber}
                   onChange={(e) => setTargetNumber(parseInt(e.target.value))}
                   className="w-full h-2 bg-[var(--background)] rounded-lg appearance-none cursor-pointer accent-[var(--accent)]"
+                  aria-label="Target Number"
                 />
                 <div className="flex justify-between mt-2">
                   <span className="text-sm text-[var(--text-secondary)]">1</span>
@@ -155,7 +180,7 @@ const DiceRoll: React.FC = () => {
                       Roll {game.type} {game.target} → {game.result}
                     </p>
                     <p className="text-sm text-[var(--text-secondary)]">
-                      Bet: {game.bet} SOL
+                      Bet: {game.bet} GRIN
                     </p>
                   </div>
                   <span
