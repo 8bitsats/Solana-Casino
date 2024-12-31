@@ -10,7 +10,7 @@ interface TokenItem {
 
 const tokens: TokenItem[] = [
   { rank: 1, name: 'BONK', volume: '123,456 SOL', change: '+12.5%' },
-  { rank: 2, name: 'WEN', volume: '98,765 SOL', change: '+8.3%' },
+  { rank: 2, name: 'GRIN', volume: '98,765 SOL', change: '+8.3%' },
   { rank: 3, name: 'MYRO', volume: '45,678 SOL', change: '+5.7%' },
 ];
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Trophy, Users, Wallet, ArrowRight, Shield, Coins, Zap, MessageSquare, BarChart3, Lock } from 'lucide-react';
+import { Trophy, Users, Wallet, ArrowRight, Shield, Coins, MessageSquare, BarChart3, Lock } from 'lucide-react';
+import { motion } from 'framer-motion';
 import StatCard from '../components/ui/StatCard';
 import RecentGames from '../components/dashboard/RecentGames';
 import TopTokens from '../components/dashboard/TopTokens';
@@ -16,19 +17,37 @@ const Dashboard = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-purple-500/20 to-transparent pointer-events-none" />
           <div className="max-w-6xl mx-auto px-4 pt-20 pb-32 relative">
             <div className="text-center space-y-6 max-w-3xl mx-auto">
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-white to-purple-400 bg-clip-text text-transparent">
-                Transform Your Token into a Gaming Ecosystem
+              <motion.div
+                animate={{
+                  scale: [1, 1.1, 1],
+                  filter: [
+                    'drop-shadow(0 0 20px rgba(147, 51, 234, 0.4))',
+                    'drop-shadow(0 0 35px rgba(236, 72, 153, 0.6))',
+                    'drop-shadow(0 0 20px rgba(147, 51, 234, 0.4))'
+                  ]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="text-8xl mb-8 inline-block"
+              >
+                😸
+              </motion.div>
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Welcome to Cheshire Casino
               </h1>
               <p className="text-xl text-[var(--text-secondary)] max-w-2xl mx-auto">
-                Launch your own casino for your Solana token in minutes. Engage your community with provably fair games and seamless Telegram integration.
+                The first decentralized casino powered by $GRIN and governed by the GRIN DAO on Solana. Experience provably fair gaming with seamless Telegram integration.
               </p>
               <div className="flex items-center justify-center space-x-4 pt-6">
-                <button className="px-8 py-3 rounded-lg bg-[var(--accent)] hover:opacity-90 transition-opacity font-medium flex items-center space-x-2">
-                  <span>Get Started</span>
+                <button className="px-8 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 transition-opacity font-medium flex items-center space-x-2">
+                  <span>Connect Wallet</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <button className="px-8 py-3 rounded-lg border border-[var(--border)] hover:bg-[var(--card)] transition-colors">
-                  View Demo
+                  View Games
                 </button>
               </div>
             </div>
@@ -37,37 +56,37 @@ const Dashboard = () => {
 
         {/* Features Grid */}
         <section className="max-w-6xl mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Our Platform?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Cheshire Casino?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
               icon={<Shield className="w-8 h-8" />}
               title="Provably Fair"
-              description="Transparent and verifiable game outcomes using cryptographic proofs"
-            />
-            <FeatureCard
-              icon={<Zap className="w-8 h-8" />}
-              title="Instant Setup"
-              description="Launch your casino in minutes with our intuitive dashboard"
-            />
-            <FeatureCard
-              icon={<MessageSquare className="w-8 h-8" />}
-              title="Telegram Integration"
-              description="Let users play directly in your community chat groups"
+              description="Every game outcome is verifiable on-chain through Solana"
             />
             <FeatureCard
               icon={<Coins className="w-8 h-8" />}
-              title="Token Compatible"
-              description="Works with any SPL token on the Solana blockchain"
+              title="$GRIN Powered"
+              description="Earn $GRIN tokens through gameplay and governance"
+            />
+            <FeatureCard
+              icon={<MessageSquare className="w-8 h-8" />}
+              title="Community Gaming"
+              description="Play directly in Telegram groups with our bot"
+            />
+            <FeatureCard
+              icon={<Users className="w-8 h-8" />}
+              title="DAO Governed"
+              description="Community-driven development through GRIN DAO"
             />
             <FeatureCard
               icon={<BarChart3 className="w-8 h-8" />}
               title="Analytics"
-              description="Track performance with detailed metrics and insights"
+              description="Real-time stats and leaderboards for players"
             />
             <FeatureCard
               icon={<Lock className="w-8 h-8" />}
-              title="Enterprise Security"
-              description="Bank-grade security for your treasury and users"
+              title="Secure Treasury"
+              description="Multi-sig protected house treasury on Solana"
             />
           </div>
         </section>
@@ -78,15 +97,15 @@ const Dashboard = () => {
             <h2 className="text-3xl font-bold text-center mb-12">Platform Statistics</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <StatBox
-                value="$10M+"
+                value="$2.5M+"
                 label="Total Volume"
               />
               <StatBox
-                value="50+"
-                label="Active Casinos"
+                value="10K+"
+                label="$GRIN Holders"
               />
               <StatBox
-                value="100K+"
+                value="50K+"
                 label="Players"
               />
             </div>
@@ -100,29 +119,29 @@ const Dashboard = () => {
             <StepCard
               number="1"
               title="Connect Wallet"
-              description="Link your Solana wallet containing your token"
+              description="Connect your Solana wallet to get started"
             />
             <StepCard
               number="2"
-              title="Configure Casino"
-              description="Set your parameters, limits, and game options"
+              title="Get $GRIN"
+              description="Swap for $GRIN tokens to play and earn"
             />
             <StepCard
               number="3"
-              title="Launch & Earn"
-              description="Start accepting bets and grow your community"
+              title="Start Playing"
+              description="Choose from our selection of games"
             />
           </div>
         </section>
 
         {/* CTA Section */}
         <section className="max-w-6xl mx-auto px-4">
-          <div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl p-12 text-center">
-            <h2 className="text-3xl font-bold mb-6">Ready to Launch Your Casino?</h2>
+          <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl p-12 text-center">
+            <h2 className="text-3xl font-bold mb-6">Ready to Join the Fun?</h2>
             <p className="text-[var(--text-secondary)] mb-8 max-w-2xl mx-auto">
-              Join the growing ecosystem of token-powered casinos on Solana. Start engaging your community today.
+              Join the Cheshire Casino community and start earning $GRIN tokens through gameplay and governance.
             </p>
-            <button className="px-8 py-3 rounded-lg bg-[var(--accent)] hover:opacity-90 transition-opacity font-medium">
+            <button className="px-8 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 transition-opacity font-medium">
               Connect Wallet to Begin
             </button>
           </div>
@@ -137,7 +156,7 @@ const Dashboard = () => {
         <StatCard
           icon={<Trophy className="w-8 h-8 text-yellow-400" />}
           title="Total Winnings"
-          value="1,234 SOL"
+          value="1,234 $GRIN"
           change="+12.5%"
         />
         <StatCard
@@ -149,7 +168,7 @@ const Dashboard = () => {
         <StatCard
           icon={<Wallet className="w-8 h-8 text-green-400" />}
           title="Total Volume"
-          value="45,678 SOL"
+          value="45,678 $GRIN"
           change="+8.7%"
         />
       </div>
@@ -190,7 +209,7 @@ const StepCard: React.FC<{
   description: string;
 }> = ({ number, title, description }) => (
   <div className="relative bg-[var(--card)] rounded-xl p-6 border border-[var(--border)]">
-    <div className="absolute -top-4 -left-4 w-8 h-8 rounded-full bg-[var(--accent)] flex items-center justify-center font-bold">
+    <div className="absolute -top-4 -left-4 w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold">
       {number}
     </div>
     <h3 className="text-xl font-bold mb-2 mt-2">{title}</h3>

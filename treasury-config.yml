@@ -1,0 +1,5 @@
+---
+json_rpc_url: "https://mainnet.helius-rpc.com/?api-key=c55c146c-71ef-41b9-a574-cb08f359c00c"
+websocket_url: "wss://mainnet.helius-rpc.com/?api-key=c55c146c-71ef-41b9-a574-cb08f359c00c"
+keypair_path: "/Users/cheshir/Desktop/terminal/Solana-Casino/treasury-keypair.json"
+commitment: "confirmed"

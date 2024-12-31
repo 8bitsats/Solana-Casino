@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { WalletProvider } from './components/WalletProvider';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
+import MusicPlayer from './components/MusicPlayer';
 import AppRoutes from './routes';
 
 const App: React.FC = () => {
@@ -17,6 +18,7 @@ const App: React.FC = () => {
               <AppRoutes />
             </main>
           </div>
+          <MusicPlayer />
         </div>
       </BrowserRouter>
     </WalletProvider>

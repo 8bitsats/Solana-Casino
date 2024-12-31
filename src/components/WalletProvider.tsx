@@ -1,7 +1,8 @@
-import { FC, ReactNode, useMemo, createContext, useContext } from 'react';
+import { FC, ReactNode, useMemo, createContext, useContext, useEffect } from 'react';
 import { ConnectionProvider, WalletProvider as SolanaWalletProvider } from '@solana/wallet-adapter-react';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { Keypair, PublicKey, Transaction } from '@solana/web3.js';
+import bs58 from 'bs58';
 import { createTransferInstruction, getAssociatedTokenAddress, createAssociatedTokenAccountInstruction } from '@solana/spl-token';
 import { 
   PhantomWalletAdapter,
@@ -16,6 +17,7 @@ import '@solana/wallet-adapter-react-ui/styles.css';
 interface TreasuryContextType {
   treasuryWallet: Keypair;
   grinMint: PublicKey;
+  connection: Connection | null;
   payoutTokens: (recipient: PublicKey, amount: number) => Promise<string>;
   transferTokens: (sender: Keypair, recipient: PublicKey, amount: number) => Promise<string>;
 }
@@ -31,11 +33,9 @@ export const useTreasury = () => {
 const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   // Use Helius RPC URL from environment variables with fallback
   const endpoint = useMemo(() => {
-    const network = import.meta.env.VITE_SOLANA_NETWORK || 'devnet';
-    if (network === 'devnet') {
-      return 'https://api.devnet.solana.com';
-    }
-    return import.meta.env.HELIUS_RPC_URL || 'https://api.mainnet-beta.solana.com';
+    console.log('Network:', import.meta.env.VITE_SOLANA_NETWORK);
+    console.log('RPC URL:', import.meta.env.VITE_RPC_URL);
+    return import.meta.env.VITE_RPC_URL || 'https://api.devnet.solana.com';
   }, []);
 
   // Initialize multiple wallet adapters
@@ -52,33 +52,73 @@ const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
     commitment: 'confirmed' as Commitment,
     confirmTransactionInitialTimeout: 60000,
     preflightCommitment: 'confirmed' as Commitment,
-    wsEndpoint: import.meta.env.HELIUS_WSS_URL || undefined
+    wsEndpoint: import.meta.env.VITE_WSS_URL || undefined
   }), []);
 
   // Initialize treasury wallet from environment variables
   const treasuryWallet = useMemo(() => {
-    const privateKey = import.meta.env.VITE_TREASURY_PRIVATE_KEY;
-    if (!privateKey) throw new Error('Treasury private key not found in environment variables');
-    const secretKey = Uint8Array.from(Buffer.from(privateKey, 'base64'));
-    return Keypair.fromSecretKey(secretKey);
+    try {
+      console.log('Initializing treasury wallet...');
+      const privateKey = import.meta.env.VITE_TREASURY_PRIVATE_KEY;
+      if (!privateKey) {
+        console.error('Treasury private key not found in environment variables');
+        throw new Error('Treasury private key not found in environment variables');
+      }
+      console.log('Private key found, creating wallet...');
+      const secretKey = bs58.decode(privateKey);
+      const wallet = Keypair.fromSecretKey(secretKey);
+      console.log('Treasury wallet created:', wallet.publicKey.toString());
+      return wallet;
+    } catch (error) {
+      console.error('Failed to initialize treasury wallet:', error);
+      throw error;
+    }
   }, []);
 
   // Initialize GRIN token mint
   const grinMint = useMemo(() => {
-    const mintAddress = import.meta.env.VITE_GRIN_TOKEN_MINT;
-    if (!mintAddress) throw new Error('GRIN token mint not found in environment variables');
-    return new PublicKey(mintAddress);
+    try {
+      console.log('Initializing GRIN mint...');
+      const mintAddress = import.meta.env.VITE_GRIN_TOKEN_MINT;
+      if (!mintAddress) {
+        console.error('GRIN token mint not found in environment variables');
+        throw new Error('GRIN token mint not found in environment variables');
+      }
+      console.log('Mint address found:', mintAddress);
+      const mint = new PublicKey(mintAddress);
+      console.log('GRIN mint initialized:', mint.toString());
+      return mint;
+    } catch (error) {
+      console.error('Failed to initialize GRIN mint:', error);
+      throw error;
+    }
   }, []);
 
   // Create connection instance
   const connection = useMemo(() => {
     try {
-      return new Connection(endpoint, config);
+      console.log('Creating connection to:', endpoint);
+      const conn = new Connection(endpoint, config);
+      console.log('Connection created successfully');
+      return conn;
     } catch (error) {
       console.error('Failed to create Solana connection:', error);
       return null;
     }
   }, [endpoint, config]);
+
+  // Verify connection
+  useEffect(() => {
+    if (connection) {
+      connection.getVersion()
+        .then(version => {
+          console.log('Connected to Solana node version:', version);
+        })
+        .catch(error => {
+          console.error('Failed to get node version:', error);
+        });
+    }
+  }, [connection]);
 
   // Function to handle token payouts
   const payoutTokens = async (recipient: PublicKey, amount: number): Promise<string> => {
@@ -173,9 +213,10 @@ const WalletProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const treasuryContextValue = useMemo(() => ({
     treasuryWallet,
     grinMint,
+    connection,
     payoutTokens,
     transferTokens,
-  }), [treasuryWallet, grinMint]);
+  }), [treasuryWallet, grinMint, connection]);
 
   // If connection failed, show error
   if (!connection) {
